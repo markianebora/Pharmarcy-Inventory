@@ -87,9 +87,9 @@ This project was implemented by the student. AI tools were consulted as a learni
 ---
 
 ## Author
-> Atillano, Aluna 
+> Atillano, Aluna Z.
 > Ebora, Mark Ian B.
 > Gremio, Carlo M.
-> Oringo, Pearl
+> Oringo, Pearl F.
 BS Information Technology  
 Central Bicol State University of Agriculture - Impig_Sipocot
