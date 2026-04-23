@@ -90,6 +90,6 @@ This project was implemented by the student. AI tools were consulted as a learni
 > Atillano, Aluna Z.
 > Ebora, Mark Ian B.
 > Gremio, Carlo M.
-> Oringo, Pearl F.
+> Oringo, Pearl Nicole F.
 BS Information Technology  
 Central Bicol State University of Agriculture - Impig_Sipocot
