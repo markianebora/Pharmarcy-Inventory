@@ -82,14 +82,19 @@ When prompted, type `yes` to load the built-in sample data (10 drugs), or `no` t
 
 ## Academic Integrity
 
-This project was implemented by the student. AI tools were consulted as a learning aid for understanding algorithm implementations. All final code was written, adapted, and is fully understood by the submitting student.
+**Project Implementation and Authorship**
+This project was executed independently by the student. Artificial Intelligence (AI) tools were utilized exclusively as a pedagogical resource to facilitate a comprehensive understanding of various algorithm implementations.
+
+**Development Process and Technical Accountability**
+While AI served as a reference guide for conceptualizing specific program components—such as generating realistic datasets for pharmaceutical nomenclature—the final codebase was authored, adapted, and refined by the student. Every function and algorithmic application within the submission has been thoroughly analyzed and is fully understood by the author to ensure technical accuracy and academic rigor.
 
 ---
 
 ## Author
-> Atillano, Aluna Z.
+> Atillano, Alona Z.
 > Ebora, Mark Ian B.
 > Gremio, Carlo M.
 > Oringo, Pearl Nicole F.
+
 BS Information Technology  
 Central Bicol State University of Agriculture - Impig_Sipocot
