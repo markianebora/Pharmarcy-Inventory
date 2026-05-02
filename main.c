@@ -23,20 +23,15 @@
 #include <time.h>
 #include <ctype.h>
 
-/* ============================================================
- *  CONSTANTS
- * ============================================================ */
 #define MAX_NAME        64
 #define MAX_CATEGORY    32
 #define MAX_SUPPLIER    64
-#define HASH_SIZE       101      /* Prime number for better distribution */
+#define HASH_SIZE       101  
 #define HEAP_CAPACITY   512
 #define STACK_CAPACITY  100
 #define LOW_STOCK_THRESHOLD 20
 
-/* ============================================================
- *  DATE STRUCTURE
- * ============================================================ */
+
 typedef struct {
     int day;
     int month;
@@ -68,9 +63,6 @@ int parse_date(const char *str, Date *d) {
     return sscanf(str, "%d-%d-%d", &d->year, &d->month, &d->day) == 3;
 }
 
-/* ============================================================
- *  DRUG NODE - Used in Linked List and Hash Table
- * ============================================================ */
 typedef struct DrugNode {
     int   id;
     char  name[MAX_NAME];
@@ -79,10 +71,10 @@ typedef struct DrugNode {
     int   quantity;
     float price;
     Date  expiry;
-    int   heap_index;       /* Position in min-heap for fast update */
-    struct DrugNode *prev;  /* Doubly linked list */
+    int   heap_index;       
+    struct DrugNode *prev; 
     struct DrugNode *next;
-    struct DrugNode *hash_next; /* Chaining in hash table */
+    struct DrugNode *hash_next; 
 } DrugNode;
 
 /* ============================================================
@@ -105,7 +97,6 @@ void list_init(LinkedList *list) {
     list->next_id  = 1;
 }
 
-/* Insert at tail - O(1) */
 void list_insert(LinkedList *list, DrugNode *node) {
     node->prev = list->tail;
     node->next = NULL;
@@ -115,7 +106,6 @@ void list_insert(LinkedList *list, DrugNode *node) {
     list->count++;
 }
 
-/* Remove node from list - O(1) with pointer */
 void list_remove(LinkedList *list, DrugNode *node) {
     if (node->prev) node->prev->next = node->next;
     else            list->head       = node->next;
@@ -126,7 +116,6 @@ void list_remove(LinkedList *list, DrugNode *node) {
 
 /* ============================================================
  *  DATA STRUCTURE 2: HASH TABLE (Fast Drug Lookup by Name)
- *  - djb2 hash function
  *  - Separate chaining for collision resolution
  *  - Average O(1) lookup, insert, delete
  * ============================================================ */
@@ -138,16 +127,14 @@ void hash_init(HashTable *ht) {
     memset(ht->buckets, 0, sizeof(ht->buckets));
 }
 
-/* djb2 hash function - known for good distribution */
 unsigned int hash_djb2(const char *key) {
     unsigned int hash = 5381;
     int c;
     while ((c = (unsigned char)*key++))
-        hash = ((hash << 5) + hash) + c;  /* hash * 33 + c */
+        hash = ((hash << 5) + hash) + c; 
     return hash % HASH_SIZE;
 }
 
-/* Normalize key: lowercase, trim spaces */
 void normalize_key(const char *src, char *dst) {
     int j = 0;
     for (int i = 0; src[i] && j < MAX_NAME - 1; i++) {
@@ -211,7 +198,7 @@ void heap_swap(MinHeap *h, int a, int b) {
     DrugNode *tmp = h->data[a];
     h->data[a] = h->data[b];
     h->data[b] = tmp;
-    /* Update heap_index so nodes know their position */
+
     h->data[a]->heap_index = a;
     h->data[b]->heap_index = b;
 }
@@ -287,7 +274,7 @@ void stack_push(ActionStack *s, const char *msg) {
         strncpy(s->entries[s->top], msg, 127);
         s->entries[s->top][127] = '\0';
     } else {
-        /* Shift down to make room (circular would be better but stack is fine here) */
+       
         memmove(s->entries[0], s->entries[1], (STACK_CAPACITY - 1) * 128);
         strncpy(s->entries[s->top], msg, 127);
     }
@@ -299,9 +286,6 @@ void stack_print(ActionStack *s) {
         printf("  [%2d] %s\n", s->top - i + 1, s->entries[i]);
 }
 
-/* ============================================================
- *  GLOBAL SYSTEM STATE
- * ============================================================ */
 typedef struct {
     LinkedList  inventory;
     HashTable   lookup;
@@ -326,10 +310,9 @@ int cmp_by_name(const DrugNode *a, const DrugNode *b) {
 }
 
 int cmp_by_stock(const DrugNode *a, const DrugNode *b) {
-    return a->quantity - b->quantity;  /* ascending: least stock first */
+    return a->quantity - b->quantity; 
 }
 
-/* Merge two halves of array */
 void merge(DrugNode **arr, int l, int m, int r, CmpFn cmp) {
     int n1 = m - l + 1, n2 = r - m;
     DrugNode **L = malloc(n1 * sizeof(DrugNode *));
@@ -347,7 +330,6 @@ void merge(DrugNode **arr, int l, int m, int r, CmpFn cmp) {
     free(L); free(R);
 }
 
-/* Recursive merge sort - O(n log n) */
 void merge_sort(DrugNode **arr, int l, int r, CmpFn cmp) {
     if (l < r) {
         int m = (l + r) / 2;
@@ -357,7 +339,6 @@ void merge_sort(DrugNode **arr, int l, int r, CmpFn cmp) {
     }
 }
 
-/* Build a sorted array from the linked list */
 DrugNode **list_to_sorted_array(LinkedList *list, CmpFn cmp, int *out_count) {
     if (list->count == 0) { *out_count = 0; return NULL; }
     DrugNode **arr = malloc(list->count * sizeof(DrugNode *));
@@ -390,9 +371,6 @@ int binary_search_by_name(DrugNode **arr, int n, const char *name) {
     return -1;
 }
 
-/* ============================================================
- *  DISPLAY HELPERS
- * ============================================================ */
 void print_separator(char c, int n) {
     for (int i = 0; i < n; i++) putchar(c);
     putchar('\n');
@@ -437,11 +415,10 @@ void print_drug_detail(const DrugNode *d) {
     print_separator('=', 50);
 }
 
-/* ============================================================
+/* ===================
  *  CORE OPERATIONS
- * ============================================================ */
+ * ===================*/
 
-/* Create and initialize a new drug node */
 DrugNode *drug_create(const char *name, const char *category,
                       const char *supplier, int qty, float price, Date expiry) {
     DrugNode *node = calloc(1, sizeof(DrugNode));
@@ -458,15 +435,14 @@ DrugNode *drug_create(const char *name, const char *category,
 
 void add_drug(const char *name, const char *category,
               const char *supplier, int qty, float price, Date expiry) {
-    /* Check for duplicate name using hash table - O(1) */
     if (hash_search(&sys.lookup, name)) {
         printf("  [!] A drug named '%s' already exists. Use restock instead.\n", name);
         return;
     }
     DrugNode *node = drug_create(name, category, supplier, qty, price, expiry);
-    list_insert(&sys.inventory, node);   /* Add to linked list */
-    hash_insert(&sys.lookup, node);      /* Add to hash table  */
-    heap_insert(&sys.expiry_heap, node); /* Add to min-heap    */
+    list_insert(&sys.inventory, node);   
+    hash_insert(&sys.lookup, node);      
+    heap_insert(&sys.expiry_heap, node); 
 
     char log[128];
     snprintf(log, sizeof(log), "ADDED   : [ID:%d] %s  (Qty: %d)", node->id, name, qty);
@@ -476,7 +452,6 @@ void add_drug(const char *name, const char *category,
 }
 
 void restock_drug(const char *name, int amount) {
-    /* Hash table lookup - average O(1) */
     DrugNode *node = hash_search(&sys.lookup, name);
     if (!node) {
         printf("  [!] Drug '%s' not found.\n", name);
@@ -523,10 +498,6 @@ void remove_drug(const char *name) {
     printf("  [-] Drug '%s' removed from inventory.\n", name);
 }
 
-/* ============================================================
- *  DISPLAY / REPORT OPERATIONS
- * ============================================================ */
-
 void display_all_sorted(int sort_mode) {
     if (sys.inventory.count == 0) {
         printf("  (inventory is empty)\n"); return;
@@ -546,11 +517,9 @@ void display_all_sorted(int sort_mode) {
     free(arr);
 }
 
-/* Show drugs expiring within `days` days using the min-heap */
 void check_expiry_alerts(int within_days) {
     printf("\n  === Expiry Alerts (within %d days) ===\n", within_days);
     int found = 0;
-    /* Traverse heap array (heap is already min-ordered by expiry) */
     for (int i = 0; i < sys.expiry_heap.size; i++) {
         DrugNode *d = sys.expiry_heap.data[i];
         int days = days_until_expiry(d->expiry);
@@ -564,7 +533,6 @@ void check_expiry_alerts(int within_days) {
     if (!found) printf("  No drugs expiring within %d days.\n", within_days);
 }
 
-/* Show the next-to-expire drug using heap_peek_min - O(1) */
 void show_next_expiry() {
     DrugNode *d = heap_peek_min(&sys.expiry_heap);
     if (!d) { printf("  (no drugs in inventory)\n"); return; }
@@ -574,7 +542,6 @@ void show_next_expiry() {
     printf(", %d days)\n", days);
 }
 
-/* Low stock report using merge sort */
 void show_low_stock() {
     printf("\n  === Low Stock Report (threshold: %d) ===\n", LOW_STOCK_THRESHOLD);
     int n, found = 0;
@@ -591,11 +558,9 @@ void show_low_stock() {
     free(arr);
 }
 
-/* Search by name: first tries hash table O(1), then binary search O(log n) */
 void search_drug(const char *name) {
     printf("\n  === Search Results for '%s' ===\n", name);
 
-    /* Method 1: Hash Table - O(1) average */
     DrugNode *found = hash_search(&sys.lookup, name);
     if (found) {
         printf("  [Hash Table] Found directly:\n");
@@ -603,7 +568,6 @@ void search_drug(const char *name) {
         return;
     }
 
-    /* Method 2: Binary Search on sorted array - O(log n) */
     printf("  [Hash Miss] Trying binary search on sorted array...\n");
     int n;
     DrugNode **arr = list_to_sorted_array(&sys.inventory, cmp_by_name, &n);
@@ -617,7 +581,6 @@ void search_drug(const char *name) {
     free(arr);
 }
 
-/* Show inventory statistics */
 void show_statistics() {
     if (sys.inventory.count == 0) { printf("  No data.\n"); return; }
     int total_qty = 0, expired = 0, low = 0;
@@ -644,7 +607,7 @@ void show_statistics() {
 }
 
 /* ============================================================
- *  SAMPLE DATA LOADER
+ *  DRUG SAMPLES
  * ============================================================ */
 void load_sample_data() {
     struct { const char *name, *cat, *sup; int qty; float price; int y,m,d; } samples[] = {
@@ -668,9 +631,6 @@ void load_sample_data() {
     printf("\n  [*] Sample data loaded: %d drugs.\n", n);
 }
 
-/* ============================================================
- *  INPUT HELPERS
- * ============================================================ */
 void flush_input() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
@@ -696,9 +656,9 @@ float read_float(const char *prompt) {
     return (float)atof(buf);
 }
 
-/* ============================================================
- *  MENUS
- * ============================================================ */
+/* ================
+ *  MENU
+ * ================ */
 
 void menu_add_drug() {
     char name[MAX_NAME], cat[MAX_CATEGORY], sup[MAX_SUPPLIER], date_str[16];
@@ -773,9 +733,9 @@ void menu_view() {
     display_all_sorted(c);
 }
 
-/* ============================================================
+/* =====================
  *  MAIN MENU
- * ============================================================ */
+ * ===================== */
 void print_banner() {
     printf("\n");
     print_separator('=', 60);
@@ -810,7 +770,6 @@ void print_menu() {
 }
 
 int main() {
-    /* Initialize all data structures */
     list_init(&sys.inventory);
     hash_init(&sys.lookup);
     heap_init(&sys.expiry_heap);
@@ -818,7 +777,6 @@ int main() {
 
     print_banner();
 
-    /* Offer sample data */
     printf("\n  Load sample data? (yes/no): ");
     char ans[8];
     scanf("%7s", ans); flush_input();
@@ -829,15 +787,15 @@ int main() {
         print_menu();
         choice = read_int("\n  Enter choice: ");
         switch (choice) {
-            case 1:  menu_view();                                    break;
-            case 2:  menu_add_drug();                                break;
-            case 3:  menu_restock();                                 break;
-            case 4:  menu_dispense();                                break;
-            case 5:  menu_remove();                                  break;
-            case 6:  menu_search();                                  break;
-            case 7:  menu_expiry();                                  break;
-            case 8:  show_low_stock();                               break;
-            case 9:  show_statistics();                              break;
+            case 1:  menu_view(); break;
+            case 2:  menu_add_drug(); break;
+            case 3:  menu_restock(); break;
+            case 4:  menu_dispense(); break; 
+            case 5:  menu_remove(); break;                        
+            case 6:  menu_search(); break;                           
+            case 7:  menu_expiry(); break;                             
+            case 8:  show_low_stock(); break;                          
+            case 9:  show_statistics(); break;                             
             case 10:
                 printf("\n  === Action History (Stack - LIFO) ===\n");
                 stack_print(&sys.history);
@@ -850,7 +808,6 @@ int main() {
         }
     } while (choice != 0);
 
-    /* Free linked list nodes */
     DrugNode *cur = sys.inventory.head;
     while (cur) {
         DrugNode *next = cur->next;
