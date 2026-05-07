@@ -458,7 +458,7 @@ void restock_drug(const char *name, int amount) {
         printf("  [!] Drug '%s' not found.\n", name);
         return;
     }
-    node->quantity += amount;
+    node->quantity += 15;
     char log[128];
     snprintf(log, sizeof(log), "RESTOCK : [ID:%d] %s  (+%d -> total %d)", node->id, name, amount, node->quantity);
     stack_push(&sys.history, log);
