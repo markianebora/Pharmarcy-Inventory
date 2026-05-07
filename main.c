@@ -1,20 +1,18 @@
 /*
- * ============================================================
- *  PHARMACY INVENTORY MANAGEMENT SYSTEM (PIMS)
- *  CC104: Data Structures and Algorithms - Final Project
- *  Central Bicol State University of Agriculture
- * ============================================================
- *
- *  Data Structures Used:
- *    1. Hash Table        - Fast drug lookup by name (O(1) avg)
- *    2. Doubly Linked List- Core inventory storage
- *    3. Min-Heap          - Expiry date priority queue
- *    4. Stack             - Undo/action history log
- *
- *  Algorithms Used:
- *    1. Merge Sort        - Sort inventory by expiry/name/stock
- *    2. Binary Search     - Search sorted inventory quickly
- *    3. Hashing (djb2)    - Hash function for drug name lookup
+ PHARMACY INVENTORY MANAGEMENT SYSTEM (PIMS)
+ CC104: Data Structures and Algorithms - Final Project
+ Central Bicol State University of Agriculture
+
+Data Structures Used:
+    1. Hash Table        - Fast drug lookup by name (O(1) avg)
+    2. Doubly Linked List- Core inventory storage
+    3. Min-Heap          - Expiry date priority queue
+    4. Stack             - Undo/action history log
+ 
+Algorithms Used:
+    1. Merge Sort        - Sort inventory by expiry/name/stock
+    2. Binary Search     - Search sorted inventory quickly
+    3. Hashing (djb2)    - Hash function for drug name lookup
  */
 
 #include <stdio.h>
@@ -60,7 +58,7 @@ void print_date(Date d) {
 }
 
 int parse_date(const char *str, Date *d) {
-    return sscanf(str, "%d-%d-%d", &d->year, &d->month, &d->day) == 3;
+    return scanf(str, "%d-%d-%d", &d->year, &d->month, &d->day) == 3;
 }
 
 typedef struct DrugNode {
@@ -77,12 +75,12 @@ typedef struct DrugNode {
     struct DrugNode *hash_next; 
 } DrugNode;
 
-/* ============================================================
- *  DATA STRUCTURE 1: DOUBLY LINKED LIST (Core Inventory)
- *  - Stores all drug records
- *  - O(1) insertion at head/tail
- *  - O(n) traversal for display
- * ============================================================ */
+/* 
+DATA STRUCTURE 1: DOUBLY LINKED LIST (Core Inventory)
+- Stores all drug records
+- O(1) insertion at head/tail
+- O(n) traversal for display
+*/
 typedef struct {
     DrugNode *head;
     DrugNode *tail;
@@ -114,11 +112,11 @@ void list_remove(LinkedList *list, DrugNode *node) {
     list->count--;
 }
 
-/* ============================================================
- *  DATA STRUCTURE 2: HASH TABLE (Fast Drug Lookup by Name)
- *  - Separate chaining for collision resolution
- *  - Average O(1) lookup, insert, delete
- * ============================================================ */
+/*
+DATA STRUCTURE 2: HASH TABLE (Fast Drug Lookup by Name)
+- Separate chaining for collision resolution
+- Average O(1) lookup, insert, delete
+*/
 typedef struct {
     DrugNode *buckets[HASH_SIZE];
 } HashTable;
@@ -137,6 +135,7 @@ unsigned int hash_djb2(const char *key) {
 
 void normalize_key(const char *src, char *dst) {
     int j = 0;
+    int i; 
     for (int i = 0; src[i] && j < MAX_NAME - 1; i++) {
         dst[j++] = tolower((unsigned char)src[i]);
     }
@@ -179,12 +178,12 @@ void hash_remove(HashTable *ht, DrugNode *node) {
     }
 }
 
-/* ============================================================
- *  DATA STRUCTURE 3: MIN-HEAP (Expiry Priority Queue)
- *  - Minimum expiry date is always at the root (index 0)
- *  - Allows O(log n) insert/extract
- *  - Used for "What expires next?" queries instantly
- * ============================================================ */
+/*
+DATA STRUCTURE 3: MIN-HEAP (Expiry Priority Queue)
+    - Minimum expiry date is always at the root (index 0)
+    - Allows O(log n) insert/extract
+    - Used for "What expires next?" queries instantly
+*/ 
 typedef struct {
     DrugNode *data[HEAP_CAPACITY];
     int        size;
@@ -254,11 +253,11 @@ DrugNode *heap_peek_min(MinHeap *h) {
     return (h->size > 0) ? h->data[0] : NULL;
 }
 
-/* ============================================================
- *  DATA STRUCTURE 4: STACK (Action History / Undo Log)
- *  - Records last N operations (add, restock, remove)
- *  - LIFO: last action shown first in history
- * ============================================================ */
+/*
+DATA STRUCTURE 4: STACK (Action History / Undo Log)
+    - Records last N operations (add, restock, remove)
+    - LIFO: last action shown first in history
+*/
 typedef struct {
     char entries[STACK_CAPACITY][128];
     int  top;
@@ -295,10 +294,11 @@ typedef struct {
 
 PharmacySystem sys;
 
-/* ============================================================
- *  ALGORITHM 1: MERGE SORT (Sort inventory array)
- *  Used to sort drugs by: expiry date, name, or stock level
- * ============================================================ */
+/*
+ALGORITHM 1: MERGE SORT (Sort inventory array)
+Used to sort drugs by: expiry date, name, or stock level
+*/
+
 typedef int (*CmpFn)(const DrugNode *, const DrugNode *);
 
 int cmp_by_expiry(const DrugNode *a, const DrugNode *b) {
@@ -350,10 +350,11 @@ DrugNode **list_to_sorted_array(LinkedList *list, CmpFn cmp, int *out_count) {
     return arr;
 }
 
-/* ============================================================
- *  ALGORITHM 2: BINARY SEARCH (Search sorted inventory)
- *  Searches a sorted array by drug name - O(log n)
- * ============================================================ */
+/*
+ALGORITHM 2: BINARY SEARCH (Search sorted inventory)
+Searches a sorted array by drug name - O(log n)
+*/
+
 int binary_search_by_name(DrugNode **arr, int n, const char *name) {
     int lo = 0, hi = n - 1;
     char target[MAX_NAME];
@@ -415,9 +416,9 @@ void print_drug_detail(const DrugNode *d) {
     print_separator('=', 50);
 }
 
-/* ===================
- *  CORE OPERATIONS
- * ===================*/
+/*
+CORE OPERATIONS
+*/
 
 DrugNode *drug_create(const char *name, const char *category,
                       const char *supplier, int qty, float price, Date expiry) {
@@ -606,9 +607,10 @@ void show_statistics() {
     print_separator('=', 45);
 }
 
-/* ============================================================
- *  DRUG SAMPLES
- * ============================================================ */
+/*
+DRUG SAMPLES
+*/
+
 void load_sample_data() {
     struct { const char *name, *cat, *sup; int qty; float price; int y,m,d; } samples[] = {
         {"Amoxicillin 500mg",  "Antibiotic",  "PharmaCorp",   150, 12.50, 2025, 6, 15},
@@ -656,9 +658,9 @@ float read_float(const char *prompt) {
     return (float)atof(buf);
 }
 
-/* ================
- *  MENU
- * ================ */
+/*
+MENU
+*/
 
 void menu_add_drug() {
     char name[MAX_NAME], cat[MAX_CATEGORY], sup[MAX_SUPPLIER], date_str[16];
@@ -668,7 +670,7 @@ void menu_add_drug() {
     read_line("  Name     : ", name, MAX_NAME);
     read_line("  Category : ", cat,  MAX_CATEGORY);
     read_line("  Supplier : ", sup,  MAX_SUPPLIER);
-    qty   = read_int  ("  Quantity : ");
+    qty   = read_int  ("  Quantity: ");
     price = read_float("  Price    : ");
     read_line("  Expiry (YYYY-MM-DD): ", date_str, sizeof(date_str));
 
@@ -733,9 +735,10 @@ void menu_view() {
     display_all_sorted(c);
 }
 
-/* =====================
- *  MAIN MENU
- * ===================== */
+/* 
+MAIN MENU
+*/
+
 void print_banner() {
     printf("\n");
     print_separator('=', 60);
